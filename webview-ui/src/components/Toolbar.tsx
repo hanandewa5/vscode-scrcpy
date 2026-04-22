@@ -1,17 +1,17 @@
 import { useState, useEffect, memo } from 'react';
 import {
     Smartphone,
-    ChevronLeft,
     ChevronDown,
     Circle,
     Square,
-    Play,
-    Square as StopIcon,
     Camera,
     MoreVertical,
     Settings,
     RotateCw,
     Check,
+    MonitorStop,
+    MonitorPlay,
+    Play,
 } from 'lucide-react';
 import type { ConnectionStatus, DeviceListItem } from '../types';
 import { SettingsPanel } from './SettingsPanel';
@@ -272,11 +272,11 @@ export const Toolbar = memo(function Toolbar({
                         <Tooltip
                             content="Back"
                             description="Navigate back on device"
-                            icon={<ChevronLeft size={10} />}
+                            icon={<Play size={8} style={{ transform: 'scaleX(-1)' }} />}
                             iconColor="gray"
                         >
                             <button className="btn-icon" onClick={onBack} disabled={!isConnected}>
-                                <ChevronLeft size={14} />
+                                <Play size={10} style={{ transform: 'scaleX(-1)' }} />
                             </button>
                         </Tooltip>
                         <Tooltip
@@ -314,7 +314,7 @@ export const Toolbar = memo(function Toolbar({
                                     ? 'Stop screen mirroring session'
                                     : 'Begin screen mirroring session'
                             }
-                            icon={isConnected ? <StopIcon size={10} /> : <Play size={10} />}
+                            icon={isConnected ? <MonitorStop size={10} /> : <MonitorPlay size={10} />}
                             iconColor={isConnected ? 'red' : 'green'}
                             position="top"
                             align="right"
@@ -327,7 +327,7 @@ export const Toolbar = memo(function Toolbar({
                                     color: isConnected ? 'var(--vsc-red)' : 'var(--vsc-green)',
                                 }}
                             >
-                                {isConnected ? <StopIcon size={14} /> : <Play size={14} />}
+                                {isConnected ? <MonitorStop size={14} /> : <MonitorPlay size={14} />}
                             </button>
                         </Tooltip>
                         <Tooltip

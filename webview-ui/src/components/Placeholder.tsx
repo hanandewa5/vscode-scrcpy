@@ -1,4 +1,5 @@
-import { Monitor, Play, Info, Link } from 'lucide-react';
+// import { Monitor, Play, Info, Link } from 'lucide-react';
+import { Info, Link, MonitorPlay } from 'lucide-react';
 
 interface PlaceholderProps {
     error?: string;
@@ -59,95 +60,147 @@ export function Placeholder({ error, isConnecting, onStart }: PlaceholderProps) 
     // Connecting State
     if (isConnecting) {
         return (
-            <div className="phone-frame">
-                <div className="phone-screen">
-                    {/* Notch */}
-                    <div className="phone-notch">
-                        <div className="phone-notch-dot" />
-                    </div>
+            // <div className="phone-frame">
+            //     <div className="phone-screen">
+            //         {/* Notch */}
+            //         <div className="phone-notch">
+            //             <div className="phone-notch-dot" />
+            //         </div>
 
-                    {/* Loading State */}
-                    <div className="loading-state">
-                        <div className="loading-spinner">
-                            <svg className="loading-svg" viewBox="0 0 36 36">
-                                <circle
-                                    cx="18"
-                                    cy="18"
-                                    r="16"
-                                    fill="none"
-                                    stroke="rgba(48, 54, 61, 0.5)"
-                                    strokeWidth="2"
-                                />
-                                <circle
-                                    cx="18"
-                                    cy="18"
-                                    r="16"
-                                    fill="none"
-                                    stroke="url(#loadingGradient)"
-                                    strokeWidth="2"
-                                    strokeDasharray="100"
-                                    strokeDashoffset="75"
-                                    strokeLinecap="round"
-                                    className="loading-circle"
-                                />
-                                <defs>
-                                    <linearGradient
-                                        id="loadingGradient"
-                                        x1="0%"
-                                        y1="0%"
-                                        x2="100%"
-                                        y2="0%"
-                                    >
-                                        <stop offset="0%" stopColor="#bc8cff" />
-                                        <stop offset="100%" stopColor="#58a6ff" />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-                            <div className="loading-icon">
-                                <Link size={14} color="var(--vsc-text-muted)" />
-                            </div>
-                        </div>
-                        <p className="loading-text">Connecting...</p>
-                    </div>
+            //         {/* Loading State */}
+            //         <div className="loading-state">
+            //             <div className="loading-spinner">
+            //                 <svg className="loading-svg" viewBox="0 0 36 36">
+            //                     <circle
+            //                         cx="18"
+            //                         cy="18"
+            //                         r="16"
+            //                         fill="none"
+            //                         stroke="rgba(48, 54, 61, 0.5)"
+            //                         strokeWidth="2"
+            //                     />
+            //                     <circle
+            //                         cx="18"
+            //                         cy="18"
+            //                         r="16"
+            //                         fill="none"
+            //                         stroke="url(#loadingGradient)"
+            //                         strokeWidth="2"
+            //                         strokeDasharray="100"
+            //                         strokeDashoffset="75"
+            //                         strokeLinecap="round"
+            //                         className="loading-circle"
+            //                     />
+            //                     <defs>
+            //                         <linearGradient
+            //                             id="loadingGradient"
+            //                             x1="0%"
+            //                             y1="0%"
+            //                             x2="100%"
+            //                             y2="0%"
+            //                         >
+            //                             <stop offset="0%" stopColor="#bc8cff" />
+            //                             <stop offset="100%" stopColor="#58a6ff" />
+            //                         </linearGradient>
+            //                     </defs>
+            //                 </svg>
+            //                 <div className="loading-icon">
+            //                     <Link size={14} color="var(--vsc-text-muted)" />
+            //                 </div>
+            //             </div>
+            //             <p className="loading-text">Connecting...</p>
+            //         </div>
 
-                    {/* Side Buttons */}
-                    <div className="phone-button-right" style={{ top: 80, height: 40 }} />
-                    <div className="phone-button-right" style={{ top: 128, height: 24 }} />
-                    <div className="phone-button-left" style={{ top: 112, height: 48 }} />
+            //         {/* Side Buttons */}
+            //         <div className="phone-button-right" style={{ top: 80, height: 40 }} />
+            //         <div className="phone-button-right" style={{ top: 128, height: 24 }} />
+            //         <div className="phone-button-left" style={{ top: 112, height: 48 }} />
+            //     </div>
+            // </div>
+            <div className="loading-state">
+                <div className="loading-spinner">
+                    <svg className="loading-svg" viewBox="0 0 36 36">
+                        <circle
+                            cx="18"
+                            cy="18"
+                            r="16"
+                            fill="none"
+                            stroke="rgba(48, 54, 61, 0.5)"
+                            strokeWidth="2"
+                        />
+                        <circle
+                            cx="18"
+                            cy="18"
+                            r="16"
+                            fill="none"
+                            stroke="url(#loadingGradient)"
+                            strokeWidth="2"
+                            strokeDasharray="100"
+                            strokeDashoffset="75"
+                            strokeLinecap="round"
+                            className="loading-circle"
+                        />
+                        <defs>
+                            <linearGradient
+                                id="loadingGradient"
+                                x1="0%"
+                                y1="0%"
+                                x2="100%"
+                                y2="0%"
+                            >
+                                <stop offset="0%" stopColor="#bc8cff" />
+                                <stop offset="100%" stopColor="#58a6ff" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    <div className="loading-icon">
+                        <Link size={14} color="var(--vsc-text-muted)" />
+                    </div>
                 </div>
+                <p className="loading-text">Connecting...</p>
             </div>
         );
     }
 
     return (
-        <div className="phone-frame">
-            <div className="phone-screen">
-                {/* Notch */}
-                <div className="phone-notch">
-                    <div className="phone-notch-dot" />
-                </div>
+        // <div className="phone-frame">
+        //     <div className="phone-screen">
+        //         {/* Notch */}
+        //         <div className="phone-notch">
+        //             <div className="phone-notch-dot" />
+        //         </div>
 
-                {/* Placeholder State */}
-                <div className="placeholder-state">
-                    <div className="placeholder-icon-wrapper">
-                        <div className="placeholder-icon-bg">
-                            <Monitor size={24} color="var(--vsc-text-muted)" />
-                        </div>
-                        <button className="placeholder-play-button" onClick={onStart}>
-                            <Play size={10} fill="white" color="white" />
-                        </button>
-                    </div>
-                    <p className="placeholder-text">Press play to start mirroring</p>
-                    <div className="placeholder-info">
-                        <Info size={8} />
-                        <span>1080 × 2400 @ 60fps</span>
-                    </div>
-                </div>
+        //         {/* Placeholder State */}
+        //         <div className="placeholder-state">
+        //             <div className="placeholder-icon-wrapper">
+        //                 <div className="placeholder-icon-bg">
+        //                     <Monitor size={24} color="var(--vsc-text-muted)" />
+        //                 </div>
+        //                 <button className="placeholder-play-button" onClick={onStart}>
+        //                     <Play size={10} fill="white" color="white" />
+        //                 </button>
+        //             </div>
+        //             <p className="placeholder-text">Press start mirroring</p>
+        //             <div className="placeholder-info">
+        //                 <Info size={8} />
+        //                 <span>1080 × 2400 @ 60fps</span>
+        //             </div>
+        //         </div>
 
-                {/* Side Buttons */}
-                <div className="phone-button-right" style={{ top: 80, height: 40 }} />
-                <div className="phone-button-right" style={{ top: 128, height: 24 }} />
-                <div className="phone-button-left" style={{ top: 112, height: 48 }} />
+        //         {/* Side Buttons */}
+        //         <div className="phone-button-right" style={{ top: 80, height: 40 }} />
+        //         <div className="phone-button-right" style={{ top: 128, height: 24 }} />
+        //         <div className="phone-button-left" style={{ top: 112, height: 48 }} />
+        //     </div>
+        // </div>
+        <div className="placeholder-state">
+            <div className="placeholder-icon-bg" onClick={onStart}>
+                <MonitorPlay size={24} color="var(--vsc-text-muted)" />
+            </div>
+            <p className="placeholder-text">Press to start mirroring</p>
+            <div className="placeholder-info">
+                <Info size={8} />
+                <span>1080 × 2400 @ 60fps</span>
             </div>
         </div>
     );

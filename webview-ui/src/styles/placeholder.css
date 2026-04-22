@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: linear-gradient(to bottom, var(--vsc-secondary), var(--vsc-bg));
+  background: var(--vsc-bg);
 }
 
 .placeholder-icon-wrapper {
@@ -24,6 +24,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.placeholder-icon-bg:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0px 12px rgba(188, 140, 255, 0.4);
+  border-color: linear-gradient(to bottom right, var(--vsc-purple), var(--vsc-blue));
 }
 
 .placeholder-play-button {
@@ -55,6 +62,7 @@
   font-size: 11px;
   color: var(--vsc-text-muted);
   text-align: center;
+  margin-top: 12px;
   margin-bottom: 12px;
 }
 
