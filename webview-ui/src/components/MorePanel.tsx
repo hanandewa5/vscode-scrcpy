@@ -157,9 +157,134 @@ export function MorePanel({
             </div>
 
             <div className="panel-content">
+                {/* Quick Controls */}
+                <div>
+                    <div
+                        style={{
+                            fontSize: 12,
+                            fontWeight: 500,
+                            color: 'var(--vsc-text-muted)',
+                            marginBottom: 8,
+                        }}
+                    >
+                        Quick Controls
+                    </div>
+                    <div className="settings-quick-actions">
+                        <button
+                            className="quick-action-btn"
+                            onClick={() => vscode.postMessage({ command: 'volume-up' })}
+                        >
+                            <div className="quick-action-icon">
+                                <Volume2 size={16} />
+                            </div>
+                            <span className="quick-action-label">Vol Up</span>
+                        </button>
+                        <button
+                            className="quick-action-btn"
+                            onClick={() => vscode.postMessage({ command: 'volume-down' })}
+                        >
+                            <div className="quick-action-icon">
+                                <Volume1 size={16} />
+                            </div>
+                            <span className="quick-action-label">Vol Down</span>
+                        </button>
+                        <button
+                            className="quick-action-btn"
+                            onClick={() => vscode.postMessage({ command: 'open-camera' })}
+                        >
+                            <div className="quick-action-icon">
+                                <Camera size={16} />
+                            </div>
+                            <span className="quick-action-label">Camera</span>
+                        </button>
+                        <button
+                            className="quick-action-btn"
+                            onClick={() => vscode.postMessage({ command: 'lock-screen' })}
+                        >
+                            <div className="quick-action-icon">
+                                <Lock size={16} />
+                            </div>
+                            <span className="quick-action-label">Lock</span>
+                        </button>
+                        <button
+                            className={`quick-action-btn ${screenOff ? 'active' : ''}`}
+                            onClick={() => {
+                                const newValue = !screenOff;
+                                onScreenOffChange(newValue);
+                                vscode.postMessage({
+                                    command: 'screen-power-toggle',
+                                    screenOff: newValue,
+                                });
+                            }}
+                            title="Toggle device screen on/off while keeping mirror active"
+                        >
+                            <div className="quick-action-icon">
+                                <MonitorOff size={16} />
+                            </div>
+                            <span className="quick-action-label">
+                                Screen{' '}
+                                <span style={{ color: 'var(--vsc-green)', fontWeight: 500 }}>
+                                    {screenOff ? 'Off' : 'On'}
+                                </span>
+                            </span>
+                        </button>
+                        <button
+                            className={`quick-action-btn ${showTouches ? 'active' : ''}`}
+                            onClick={() => {
+                                const newValue = !showTouches;
+                                onShowTouchesChange(newValue);
+                                vscode.postMessage({ command: 'show-touches', enabled: newValue });
+                            }}
+                            title="Show touch indicators on device screen"
+                        >
+                            <div className="quick-action-icon">
+                                <Hand size={16} />
+                            </div>
+                            <span className="quick-action-label">Touches</span>
+                        </button>
+                        <button
+                            className={`quick-action-btn ${stayAwake ? 'active' : ''}`}
+                            onClick={() => {
+                                const newValue = !stayAwake;
+                                onStayAwakeChange(newValue);
+                                vscode.postMessage({ command: 'stay-awake', enabled: newValue });
+                            }}
+                            title="Keep device awake while plugged in"
+                        >
+                            <div className="quick-action-icon">
+                                <Coffee size={16} />
+                            </div>
+                            <span className="quick-action-label">
+                                Awake{' '}
+                                <span style={{ color: 'var(--vsc-green)', fontWeight: 500 }}>
+                                    {stayAwake ? 'On' : 'Off'}
+                                </span>
+                            </span>
+                        </button>
+                        <button
+                            className={`quick-action-btn ${darkMode ? 'active' : ''}`}
+                            onClick={() => {
+                                const newValue = !darkMode;
+                                onDarkModeChange(newValue);
+                                vscode.postMessage({ command: 'dark-mode', enabled: newValue });
+                            }}
+                            title="Toggle device dark/light mode"
+                        >
+                            <div className="quick-action-icon">
+                                {darkMode ? <Moon size={16} /> : <Sun size={16} />}
+                            </div>
+                            <span className="quick-action-label">
+                                <span style={{ color: 'var(--vsc-green)', fontWeight: 500 }}>
+                                    {darkMode ? 'Dark' : 'Light'}
+                                </span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
                 {/* APK Installer Section */}
                 <div style={{ marginBottom: 16 }}>
-                    <div
+                    {/* <div
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -195,7 +320,7 @@ export function MorePanel({
                                 Drop or select APK files to install
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Drop Zone */}
                     <div
@@ -660,130 +785,7 @@ export function MorePanel({
                     }}
                 />
 
-                {/* Quick Controls */}
-                <div>
-                    <div
-                        style={{
-                            fontSize: 12,
-                            fontWeight: 500,
-                            color: 'var(--vsc-text-muted)',
-                            marginBottom: 8,
-                        }}
-                    >
-                        Quick Controls
-                    </div>
-                    <div className="settings-quick-actions">
-                        <button
-                            className="quick-action-btn"
-                            onClick={() => vscode.postMessage({ command: 'volume-up' })}
-                        >
-                            <div className="quick-action-icon">
-                                <Volume2 size={16} />
-                            </div>
-                            <span className="quick-action-label">Vol Up</span>
-                        </button>
-                        <button
-                            className="quick-action-btn"
-                            onClick={() => vscode.postMessage({ command: 'volume-down' })}
-                        >
-                            <div className="quick-action-icon">
-                                <Volume1 size={16} />
-                            </div>
-                            <span className="quick-action-label">Vol Down</span>
-                        </button>
-                        <button
-                            className="quick-action-btn"
-                            onClick={() => vscode.postMessage({ command: 'open-camera' })}
-                        >
-                            <div className="quick-action-icon">
-                                <Camera size={16} />
-                            </div>
-                            <span className="quick-action-label">Camera</span>
-                        </button>
-                        <button
-                            className="quick-action-btn"
-                            onClick={() => vscode.postMessage({ command: 'lock-screen' })}
-                        >
-                            <div className="quick-action-icon">
-                                <Lock size={16} />
-                            </div>
-                            <span className="quick-action-label">Lock</span>
-                        </button>
-                        <button
-                            className={`quick-action-btn ${screenOff ? 'active' : ''}`}
-                            onClick={() => {
-                                const newValue = !screenOff;
-                                onScreenOffChange(newValue);
-                                vscode.postMessage({
-                                    command: 'screen-power-toggle',
-                                    screenOff: newValue,
-                                });
-                            }}
-                            title="Toggle device screen on/off while keeping mirror active"
-                        >
-                            <div className="quick-action-icon">
-                                <MonitorOff size={16} />
-                            </div>
-                            <span className="quick-action-label">
-                                Screen{' '}
-                                <span style={{ color: 'var(--vsc-green)', fontWeight: 500 }}>
-                                    {screenOff ? 'Off' : 'On'}
-                                </span>
-                            </span>
-                        </button>
-                        <button
-                            className={`quick-action-btn ${showTouches ? 'active' : ''}`}
-                            onClick={() => {
-                                const newValue = !showTouches;
-                                onShowTouchesChange(newValue);
-                                vscode.postMessage({ command: 'show-touches', enabled: newValue });
-                            }}
-                            title="Show touch indicators on device screen"
-                        >
-                            <div className="quick-action-icon">
-                                <Hand size={16} />
-                            </div>
-                            <span className="quick-action-label">Touches</span>
-                        </button>
-                        <button
-                            className={`quick-action-btn ${stayAwake ? 'active' : ''}`}
-                            onClick={() => {
-                                const newValue = !stayAwake;
-                                onStayAwakeChange(newValue);
-                                vscode.postMessage({ command: 'stay-awake', enabled: newValue });
-                            }}
-                            title="Keep device awake while plugged in"
-                        >
-                            <div className="quick-action-icon">
-                                <Coffee size={16} />
-                            </div>
-                            <span className="quick-action-label">
-                                Awake{' '}
-                                <span style={{ color: 'var(--vsc-green)', fontWeight: 500 }}>
-                                    {stayAwake ? 'On' : 'Off'}
-                                </span>
-                            </span>
-                        </button>
-                        <button
-                            className={`quick-action-btn ${darkMode ? 'active' : ''}`}
-                            onClick={() => {
-                                const newValue = !darkMode;
-                                onDarkModeChange(newValue);
-                                vscode.postMessage({ command: 'dark-mode', enabled: newValue });
-                            }}
-                            title="Toggle device dark/light mode"
-                        >
-                            <div className="quick-action-icon">
-                                {darkMode ? <Moon size={16} /> : <Sun size={16} />}
-                            </div>
-                            <span className="quick-action-label">
-                                <span style={{ color: 'var(--vsc-green)', fontWeight: 500 }}>
-                                    {darkMode ? 'Dark' : 'Light'}
-                                </span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
+                
             </div>
         </div>
     );
