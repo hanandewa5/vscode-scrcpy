@@ -206,6 +206,7 @@ export type ExtensionMessage =
     | { type: 'device-info'; info: DeviceInfo }
     | { type: 'device-list'; devices: DeviceListItem[] }
     | { type: 'device-selected'; deviceId: string }
+    | { type: 'clipboard-update'; text: string }
     | { type: 'fm-dir'; deviceId: string; path: string; entries: DeviceFsEntry[] }
     | { type: 'fm-open-result'; success: boolean; message: string }
     | { type: 'fm-delete-result'; success: boolean; message: string }

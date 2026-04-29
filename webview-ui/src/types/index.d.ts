@@ -120,4 +120,8 @@ export type ExtensionMessage =
     | {
           type: 'device-selected';
           deviceId: string;
+      }
+    | {
+          type: 'clipboard-update';
+          text: string;
       };

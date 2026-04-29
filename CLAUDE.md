@@ -103,7 +103,7 @@ npm run typecheck && npm run lint && npm run format:check
 
 - **[extension.ts](src/extension.ts)** - Main entry point, command registration
 - **[services/](src/services/)** - Core business logic
-  - `ScrcpyService.ts` - Screen mirroring via @yume-chan/scrcpy
+  - `ScrcpyService.ts` - Screen mirroring via @yume-chan/scrcpy (includes bidirectional clipboard sync)
   - `DeviceManager.ts` - ADB device discovery and selection
   - `AdbShellService.ts` - Shell command execution
   - `DeviceInfoService.ts` - Device metadata (battery, storage, etc.)
@@ -272,8 +272,12 @@ Extension activates on:
 ### Extension ↔ Webview Communication
 
 Messages flow via `postMessage`:
-- Extension → Webview: `{ type: 'video' | 'connected' | 'device-list' | ... }`
+- Extension → Webview: `{ type: 'video' | 'connected' | 'device-list' | 'clipboard-update' | ... }`
 - Webview → Extension: `{ command: 'start' | 'stop' | 'touch' | ... }`
+
+**Clipboard Sync Architecture:**
+- **Device → VS Code**: When you copy on the Android device, the scrcpy server sends clipboard data via `AdbScrcpyClient.clipboard` stream (handled in `ScrcpyService.processClipboardStream()`), forwarded to webview as `clipboard-update` message, and synced to VS Code via `navigator.clipboard.writeText()`
+- **VS Code → Device**: When you paste (Ctrl+V), the webview reads the clipboard via `navigator.clipboard.readText()`, sends `paste-text` message to extension, and injects it via `ScrcpyService.pasteText()`
 
 See [src/views/ScrcpySidebarView.ts:157](src/views/ScrcpySidebarView.ts#L157) for message handler.
 
@@ -283,6 +287,124 @@ See [src/views/ScrcpySidebarView.ts:157](src/views/ScrcpySidebarView.ts#L157) fo
 2. Open the "Android Screen Mirror" sidebar
 3. Check "Output" panel > "Extension Host" for logs
 4. Use Chrome DevTools for webview debugging (Cmd+Shift+P → "Developer: Open Webview Developer Tools")
+
+---
+
+## Clipboard Sync Implementation
+
+### Architecture Overview
+
+Clipboard synchronization is bidirectional:
+
+1. **Device → VS Code** (copy on device):
+   - `ScrcpyService.processClipboardStream()` reads from `scrcpyClient.clipboard` stream
+   - Sends `clipboard-update` message to webview via `onClipboardUpdate` event
+   - Webview handler calls `navigator.clipboard.writeText()` to sync to VS Code
+   - No user action required
+
+2. **VS Code → Device** (paste to device):
+   - User presses Ctrl+V with canvas focused
+   - `VideoCanvas.handlePasteRequest()` reads from `navigator.clipboard.readText()`
+   - Sends `paste-text` command to extension
+   - Extension calls `ScrcpyService.pasteText()` which uses `controller.setClipboard()` with `paste=true`
+
+### Key Files
+
+- **Service**: [src/services/ScrcpyService.ts](src/services/ScrcpyService.ts) - `processClipboardStream()` and `pasteText()` methods
+- **Extension View**: [src/views/ScrcpySidebarView.ts](src/views/ScrcpySidebarView.ts) - `onClipboardUpdate` handler
+- **Floating Panel**: [src/panels/ScrcpyPanel.ts](src/panels/ScrcpyPanel.ts) - `onClipboardUpdate` handler
+- **React App**: [webview-ui/src/apps/MirrorApp.tsx](webview-ui/src/apps/MirrorApp.tsx) - `clipboard-update` message handler
+- **Canvas Component**: [webview-ui/src/components/VideoCanvas.tsx](webview-ui/src/components/VideoCanvas.tsx) - `handlePasteRequest()` and `handlePaste()` methods
+
+### Event Flow
+
+```
+Extension Side:
+  scrcpyClient.clipboard stream → processClipboardStream() → onClipboardUpdate(text) 
+    → webview postMessage {type: 'clipboard-update', text}
+
+Webview Side:
+  {type: 'clipboard-update'} → MirrorApp → navigator.clipboard.writeText()
+
+Paste Flow:
+  Ctrl+V pressed → VideoCanvas.handlePasteRequest() → navigator.clipboard.readText()
+    → webview postMessage {command: 'paste-text', text} → extension pasteText()
+    → controller.setClipboard({content, paste: true})
+```
+
+---
+
+## Persistent Mirroring Implementation
+
+### Architecture Overview
+
+Persistent Mirroring is a user-controlled toggle that determines whether the screen mirroring stream persists when the sidebar is hidden or when switching tabs.
+
+**Two modes:**
+
+1. **Persistent Mode OFF (default)** - Original behavior:
+   - When sidebar is hidden: stream stops and ADB connection is torn down
+   - When sidebar is visible again: stream restarts fresh
+   - Good for resource conservation on slower systems
+
+2. **Persistent Mode ON** - New behavior:
+   - When sidebar is hidden: stream and ADB connection remain active
+   - When sidebar is visible again: stream resumes immediately without reconnection
+   - Better for seamless user experience, like Copilot Chat
+
+### Key Implementation Points
+
+- **Webview Context Retention**: `retainContextWhenHidden: true` is set on sidebar webview registration in [src/extension.ts](src/extension.ts#L27) to keep React/webview state alive
+- **Setting Storage**: `persistentMirroring` boolean is stored in webview `vscode.getState()` in [webview-ui/src/hooks/useSettingsStorage.ts](webview-ui/src/hooks/useSettingsStorage.ts)
+- **Extension-Webview Sync**: Extension maintains `_persistentMirroringEnabled` flag and listens for `set-persistent-mirroring` command from webview
+- **Video Forwarding Optimization**: When persistent mode is ON and sidebar is hidden, video frames are skipped (not forwarded to webview) to save CPU
+
+### Key Files
+
+- **Extension Sidebar View**: [src/views/ScrcpySidebarView.ts](src/views/ScrcpySidebarView.ts)
+  - `_persistentMirroringEnabled` flag
+  - `_wasStreamingBeforeHidden` flag (used only when persistent mode is OFF)
+  - Visibility handler conditionally stops/resumes or maintains stream
+  - Message handler for `set-persistent-mirroring` command
+  - Video forwarding skips when hidden and persistent mode is ON
+- **Settings Panel UI**: [webview-ui/src/components/SettingsPanel.tsx](webview-ui/src/components/SettingsPanel.tsx) - toggle above Key Mapping
+- **React App State**: [webview-ui/src/apps/MirrorApp.tsx](webview-ui/src/apps/MirrorApp.tsx) - syncs toggle to extension on change
+- **Storage Hook**: [webview-ui/src/hooks/useSettingsStorage.ts](webview-ui/src/hooks/useSettingsStorage.ts) - persists setting
+- **Message Type**: [webview-ui/src/types/index.ts](webview-ui/src/types/index.ts) - `set-persistent-mirroring` command
+
+### Event Flow
+
+```
+Webview Side:
+  User toggles "Persistent Mirroring" in Settings Panel
+    → SettingsPanel onChange → MirrorApp updateSetting('persistentMirroring', value)
+    → useSettingsStorage persists to vscode.getState()
+    → postMessage {command: 'set-persistent-mirroring', enabled: boolean}
+
+Extension Side:
+  Receives message → _persistentMirroringEnabled = !!message.enabled
+  
+Sidebar Visibility Changes:
+  If persistent OFF and sidebar hides:
+    → Set _wasStreamingBeforeHidden = true
+    → Call _stopStreaming()
+  
+  If persistent OFF and sidebar shows:
+    → If _wasStreamingBeforeHidden: call _startStreaming()
+  
+  If persistent ON and sidebar hides:
+    → Do nothing (keep stream alive, skip video forwarding)
+  
+  If persistent ON and sidebar shows:
+    → Webview resumes rendering immediately
+```
+
+### Behavior Details
+
+- **Default**: OFF (maintains backward compatibility with original stop/resume flow)
+- **Persistence**: Saved per workspace session via webview storage
+- **CPU Optimization**: When ON and hidden, video packets are not forwarded to webview but still processed by extension (can be further optimized if needed)
+- **UX**: No need to reconnect device or restart stream when switching tabs or minimizing sidebar
 
 ---
 

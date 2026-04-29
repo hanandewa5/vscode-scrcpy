@@ -436,6 +436,12 @@ export class ScrcpySidebarView {
                         type: 'disconnected',
                     });
                 },
+                onClipboardUpdate: (text) => {
+                    this._view.webview.postMessage({
+                        type: 'clipboard-update',
+                        text: text,
+                    });
+                },
             },
             this._extensionUri.fsPath
         );

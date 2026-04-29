@@ -21,6 +21,7 @@ export interface ScrcpyServiceEvents {
     onError: (error: string) => void;
     onConnected: () => void;
     onDisconnected: () => void;
+    onClipboardUpdate: (text: string) => void;
 }
 
 export interface ScrcpySettings {
@@ -127,20 +128,22 @@ export class ScrcpyService {
         }
 
         // Use settings or defaults
-        const maxSize = this.settings.maxSize || 0;
-        const maxFps = this.settings.maxFps || 60;
-        const videoBitRate = this.settings.videoBitRate || 8_000_000;
+        const maxSize = this.settings.maxSize // || 0;
+        const maxFps = this.settings.maxFps // || 60;
+        const videoBitRate = this.settings.videoBitRate //|| 8_000_000;
 
         // Create scrcpy options for version 3.3.3
         const options = new AdbScrcpyOptions3_3_3({
             video: true,
-            audio: false,
+            // audio: false,
             control: true,
             cleanup: true,
             maxSize: maxSize,
             videoBitRate: videoBitRate,
+            // audioBitRate: audioBitRate,
             maxFps: maxFps,
-            videoCodec: 'h264',
+            // videoCodec: 'h264',
+            // audioCodec: 'opus',
             tunnelForward: false,
             sendDeviceMeta: true,
             sendFrameMeta: true,
@@ -185,6 +188,9 @@ export class ScrcpyService {
 
         // Handle output messages
         this.processOutputMessages();
+
+        // Handle clipboard stream
+        this.processClipboardStream();
 
         // Handle client exit
         this.scrcpyClient.exited
@@ -305,6 +311,32 @@ export class ScrcpyService {
             }
         } catch (error) {
             console.error('Error processing output:', error);
+        }
+    }
+
+    private async processClipboardStream(): Promise<void> {
+        if (!this.scrcpyClient?.clipboard) {
+            console.log('[ScrcpyService] Clipboard stream not available');
+            return;
+        }
+
+        try {
+            const reader = this.scrcpyClient.clipboard.getReader();
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    console.log('[ScrcpyService] Clipboard stream closed');
+                    break;
+                }
+
+                if (value && value.length > 0) {
+                    console.log('[ScrcpyService] Clipboard updated from device:', value.substring(0, 50));
+                    this.events.onClipboardUpdate(value);
+                }
+            }
+        } catch (error) {
+            console.error('[ScrcpyService] Error processing clipboard stream:', error);
         }
     }
 

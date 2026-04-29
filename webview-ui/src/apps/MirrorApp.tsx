@@ -79,6 +79,15 @@ export default function MirrorApp() {
                         setSelectedDeviceId(message.deviceId);
                         break;
 
+                    case 'clipboard-update':
+                        // Sync device clipboard to VS Code
+                        if (message.text && navigator.clipboard) {
+                            navigator.clipboard.writeText(message.text).catch((error) => {
+                                console.error('[MirrorApp] Failed to sync clipboard:', error);
+                            });
+                        }
+                        break;
+
                     case 'app-list':
                     case 'recent-apps':
                     case 'debug-apps':

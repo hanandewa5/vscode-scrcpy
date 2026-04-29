@@ -361,6 +361,12 @@ export class ScrcpyPanel {
                         type: 'disconnected',
                     });
                 },
+                onClipboardUpdate: (text) => {
+                    this._panel.webview.postMessage({
+                        type: 'clipboard-update',
+                        text: text,
+                    });
+                },
             },
             this._extensionUri.fsPath
         );
